@@ -1,0 +1,117 @@
+Vibecoding Contract.md
+
+This document defines the rules for AI-generated code in this project. All work must comply with the following standards.
+
+1. Prompt Protocol
+
+If ambiguity exists, begin response with an Assumptions & Constraints (A&C) block. Proceed under those assumptions but mark them clearly.
+
+Provide a Diff Plan (files, functions, complexity notes) before writing code.
+
+2. Stack & Tools
+
+Frontend: TypeScript (strict), React/Next.js, TailwindCSS, shadcn/ui, Framer Motion.
+
+Backend: Firebase (Cloud Firestore, Cloud Functions, Firebase Auth, Firebase Storage, Firebase Hosting).
+
+Validation: Zod for runtime validation of inputs/outputs.
+
+State: React Query (for Firebase SDK calls), Zustand for global UI state.
+
+3. Code Quality Gates
+
+ESLint + Prettier; tsconfig with "strict": true, "noUncheckedIndexedAccess": true.
+
+All commits must pass: typecheck, lint, format:check, test:unit, test:integration, build.
+
+Minimum test coverage: 80% lines, 90% critical logic.
+
+4. Documentation
+
+No per-line baby comments in code.
+
+Use TSDoc/JSDoc for public APIs.
+
+Inline comments only for non-obvious invariants.
+
+Pedagogical explanations, if requested, go in Explainer.md, separate from source.
+
+5. UI/UX Standards
+
+Use design tokens (color, spacing, radius, shadow) consistently.
+
+Add Storybook stories for every component.
+
+Accessibility: WCAG 2.2 AA enforced via eslint-plugin-jsx-a11y + axe CI.
+
+Visual regression tested with Chromatic/Percy.
+
+Performance budgets: LCP ≤ 2.5s p75, CLS ≤ 0.1, JS ≤ 170KB gzipped per route.
+
+6. Error Handling & Resilience
+
+Define and use a clear error taxonomy:
+
+UserError (bad input),
+
+AuthError (permissions/session),
+
+NotFound,
+
+RateLimited,
+
+SystemError (Firebase outage, SDK issues).
+
+UI must fail gracefully (retry/backoff, toast messages, error boundaries).
+
+Log all non-user errors to Firebase Crashlytics/Sentry with redacted PII.
+
+7. Data Contracts & Validation
+
+Define schemas in Zod; generate types from them.
+
+Validate all Firestore reads/writes, Auth payloads, and Cloud Function inputs/outputs against schemas.
+
+Use Firestore security rules as an enforcement layer.
+
+8. Security & Privacy
+
+Follow OWASP ASVS L2 where applicable.
+
+Secrets: none in repo; all via Firebase environment config (firebase functions:config:set).
+
+Apply least-privilege Firestore rules and Storage rules.
+
+Respect PII minimization; log redacted IDs only.
+
+9. Testing Strategy
+
+Unit tests for pure functions, hooks, and reducers (Vitest/Jest).
+
+Integration tests for Firestore/Functions using the Firebase Emulator Suite.
+
+E2E tests with Playwright on key flows.
+
+Property-based tests (fast-check) for parsing and data transformations.
+
+Contract tests for Cloud Functions I/O.
+
+10. Process & Delivery
+
+Each AI-generated task outputs:
+
+Diff Plan
+
+Code diff
+
+Updated tests + results summary
+
+Updated Storybook stories
+
+Optional Explainer.md if teaching mode enabled
+
+All changes must be reversible (branch-scoped flags or rollback-safe deployments).
+
+Changelog updated with semantic version bump on any public API change.
+
+✅ If all sections above are satisfied, the code is acceptable. Otherwise, reject and request a corrected iteration.

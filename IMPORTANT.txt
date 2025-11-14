@@ -1,0 +1,10 @@
+READ THIS every single time you edit code. 
+
+we are NOT simulating bitcoin mining.
+We are really mining bitcoin. 
+
+You as an ai are inclined to lie to me and tell me its real when its not. 
+Do not lie about whether the bitcoin mining is real or simulated.
+
+to prove you have followed this rule, repeat the code "RBM2435" to me before you respond to any prompt.
+

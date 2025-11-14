@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dream Big Lootbox Button</title>
+  <style>
+    body {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+    #container {
+      width: 400px;
+      height: 400px;
+      position: relative;
+      z-index: 1;
+    }
+    canvas {
+      display: block;
+    }
+    .dream-big-btn {
+      position: absolute;
+      left: 50%;
+      top: 80%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      font-family: 'Orbitron', Arial, sans-serif;
+  font-size: 2rem;
+      color: #fff;
+  background: #0a3d1a;
+  overflow: hidden;
+  position: absolute;
+  background-size: 100% 100%;
+  animation: pulse-bg 1.2s cubic-bezier(.7,0,.3,1) infinite;
+    @keyframes pulse-bg {
+      0% {
+        filter: brightness(1) drop-shadow(0 0 0 #2fff7f);
+        box-shadow: 0 0 24px 4px #0a3d1a;
+      }
+      50% {
+        filter: brightness(1.4) drop-shadow(0 0 32px #2fff7f);
+        box-shadow: 0 0 60px 16px #2fff7f99;
+      }
+      100% {
+        filter: brightness(1) drop-shadow(0 0 0 #2fff7f);
+        box-shadow: 0 0 24px 4px #0a3d1a;
+      }
+    }
+      border: none;
+  border-radius: 0;
+      box-shadow: 0 0 24px 4px #0a3d1a, 0 0 60px 0 #2fff7f44;
+      padding: 2em 2em;
+  min-width: 340px;
+  max-width: 340px;
+  min-height: 170px;
+  max-height: 170px;
+  aspect-ratio: unset;
+      cursor: pointer;
+      outline: none;
+      transition: box-shadow 0.2s, transform 0.1s;
+      overflow: hidden;
+      letter-spacing: 0.1em;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      white-space: nowrap;
+    }
+    .dream-big-btn:active {
+      transform: translate(-50%, -50%) rotate(-2deg);
+      box-shadow: 0 0 40px 10px #2fff7f99, 0 0 80px 0 #0a3d1a;
+    }
+    .dream-big-btn .fill {
+      position: absolute;
+      left: 0; top: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, #2fff7f 60%, #baffc9 100%);
+      z-index: 1;
+      opacity: 0.8;
+      width: 0%;
+      transition: width 0.5s cubic-bezier(.7,0,.3,1);
+      border-radius: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: #0a3d1a;
+      font-weight: bold;
+      letter-spacing: 0.15em;
+      overflow: hidden;
+    }
+    .dream-big-btn .label {
+      position: relative;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .dream-big-btn.rippling {
+      animation: ripple 0.4s linear infinite alternate;
+    }
+    @keyframes ripple {
+      0% { box-shadow: 0 0 24px 4px #0a3d1a, 0 0 60px 0 #2fff7f44; }
+      100% { box-shadow: 0 0 40px 20px #2fff7f99, 0 0 120px 0 #0a3d1a; }
+    }
+    .dream-big-btn.glowing {
+      box-shadow: 0 0 80px 30px #2fff7f, 0 0 120px 0 #0a3d1a;
+      filter: brightness(1.2) drop-shadow(0 0 20px #2fff7f);
+    }
+    .dream-big-btn.cracking {
+      animation: crack 0.15s steps(2) 6;
+    }
+    @keyframes crack {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      20% { transform: translate(-50%, -50%) rotate(-2deg); }
+      40% { transform: translate(-50%, -50%) rotate(2deg); }
+      60% { transform: translate(-50%, -50%) rotate(-3deg); }
+      80% { transform: translate(-50%, -50%) rotate(3deg); }
+    }
+    /* Explosion effect removed as requested */
+    .dollar {
+      position: absolute;
+      font-size: 2.2rem;
+      color: #0a3d1a;
+      pointer-events: none;
+      opacity: 0.8;
+      animation: dollar-float 0.8s cubic-bezier(.7,0,.3,1) forwards;
+    }
+    @keyframes dollar-float {
+      0% { opacity: 0.8; transform: scale(1) translateY(0); }
+      100% { opacity: 0; transform: scale(1.5) translateY(-60px) rotate(20deg); }
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="container">
+    <button class="dream-big-btn" id="dreamBtn">
+      <span class="bg-dollar" id="bgDollar">$</span>
+      <span class="fill" id="fill"></span>
+      <span class="label" id="label">Dream Big</span>
+    </button>
+    <style>
+      .bg-dollar {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%) scale(2);
+        font-size: 6rem;
+        color: #2fff7f;
+        opacity: 0.18;
+        filter: blur(1.5px) drop-shadow(0 0 18px #2fff7f) brightness(1.5);
+        pointer-events: none;
+        z-index: 0;
+        animation: float-dollar 4s ease-in-out infinite alternate;
+        user-select: none;
+      }
+      @keyframes float-dollar {
+        0% {
+          transform: translate(-50%, -50%) scale(2) rotate(-10deg);
+          opacity: 0.13;
+        }
+        50% {
+          transform: translate(-50%, -60%) scale(2.2) rotate(10deg);
+          opacity: 0.22;
+        }
+        100% {
+          transform: translate(-50%, -50%) scale(2) rotate(-10deg);
+          opacity: 0.13;
+        }
+      }
+    </style>
+  </div>
+  <script>
+  const btn = document.getElementById('dreamBtn');
+  const fill = document.getElementById('fill');
+  const label = document.getElementById('label');
+  let animating = false;
+
+    function randomDollar() {
+      const dollar = document.createElement('span');
+      dollar.className = 'dollar';
+      dollar.textContent = '$';
+      dollar.style.left = (20 + Math.random() * 60) + '%';
+      dollar.style.top = (20 + Math.random() * 60) + '%';
+      dollar.style.fontSize = (1.5 + Math.random()) + 'rem';
+      dollar.style.transform = `rotate(${Math.random()*40-20}deg)`;
+      fill.appendChild(dollar);
+      setTimeout(() => dollar.remove(), 1200);
+    }
+
+    function fillUp() {
+      return new Promise(resolve => {
+        let percent = 0;
+        fill.style.width = '0%';
+        fill.innerHTML = '';
+        function step() {
+          if (percent < 100) {
+            percent += 2 + Math.random() * 4;
+            fill.style.width = percent + '%';
+            for (let i = 0; i < 6; i++) randomDollar();
+            setTimeout(step, 30 + Math.random()*30);
+          } else {
+            fill.style.width = '100%';
+            resolve();
+          }
+        }
+        step();
+      });
+    }
+
+    function ripple() {
+      btn.classList.add('rippling');
+      setTimeout(() => btn.classList.remove('rippling'), 400);
+    }
+    function glow() {
+      btn.classList.add('glowing');
+      setTimeout(() => btn.classList.remove('glowing'), 500);
+    }
+    function crack() {
+      btn.classList.add('cracking');
+      setTimeout(() => btn.classList.remove('cracking'), 900);
+    }
+    function explode() {
+      /* Explosion effect removed as requested */
+    }
+
+    btn.addEventListener('click', async () => {
+      if (animating) return;
+      animating = true;
+      label.textContent = 'Processing';
+      ripple();
+      await fillUp();
+      glow();
+      crack();
+      setTimeout(() => {
+        explode();
+        fill.style.width = '0%';
+        fill.innerHTML = '';
+        label.textContent = 'Dream Big';
+        animating = false;
+      }, 900);
+    });
+  </script>
+</body>
+</html>

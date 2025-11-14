@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The People's Lottery</title>
+  <!-- Three.js and Cannon.js for Plinko game -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/cannon@0.6.2/build/cannon.min.js"></script>
+  <style>
+    @font-face {
+      font-family: 'Cayton Demo';
+      src: url('Cayton Demo.ttf') format('truetype');
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    html, body {
+      height: 100%;
+      overflow-y: hidden;
+    }
+    body {
+      background: #fff;
+      color: #000;
+      font-family: 'Cayton Demo', 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: center;
+      padding-top: 40px;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      z-index: 100;
+    }
+    .logo-row {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 100%;
+    }
+    .logo {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      height: 40px;
+      width: auto;
+    }
+    .site-name {
+      font-size: 40px;
+      font-weight: bold;
+      color: #16a34a;
+      margin: 0;
+      text-align: center;
+    }
+    .sub-title {
+      font-size: 20px;
+      color: #000;
+      margin: 0;
+      text-align: center;
+    }
+    .info-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      background: blue;
+      color: white;
+      border: none;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding-bottom: 50px;
+    }
+    .top-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .button-row {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      padding: 0 10px;
+      box-sizing: border-box;
+    }
+    .wheel-container {
+      width: 100%;
+      height: 80vw;
+      max-height: 500px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 0px;
+      position: relative;
+    }
+    #plinkoContainer {
+      width: 80vw;
+      height: 80vw;
+      max-width: 500px;
+      max-height: 500px;
+      position: relative;
+    }
+    .headline {
+      font-size: 1.2rem;
+      font-weight: bold;
+      margin: 0;
+      word-break: break-word;
+      color: #000;
+      text-align: center;
+      max-width: 95vw;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .sparkling-text {
+      color: #2563eb;
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-shadow: 0 0 8px rgba(37, 99, 235, 0.6);
+      margin-bottom: 1.5rem;
+    }
+    .dream-btn {
+      margin: 1.2rem auto 0 auto;
+      padding: 1.5rem 1.5rem;
+      background: #16a34a;
+      color: #fff;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: block;
+      width: 90vw;
+      max-width: 400px;
+      box-sizing: border-box;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      animation: pulse 2s infinite;
+    }
+    .dream-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      animation: none;
+    }
+    .dream-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .dream-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .dream-btn.processing {
+      background: #2563eb;
+    }
+    .auto-btn {
+      margin: 0;
+      padding: 0.75rem 1rem;
+      background: #16a34a;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: block;
+      box-sizing: border-box;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      animation: pulse 2s infinite;
+    }
+    .auto-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      animation: none;
+    }
+    .auto-btn:active {
+      transform: scale(0.95);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .auto-btn:disabled {
+      background: #555;
+      cursor: not-allowed;
+    }
+    .auto-btn.active {
+      background: #2563eb;
+    }
+    .win-triangle {
+      width: 0;
+      height: 0;
+      border-left: 20px solid transparent;
+      border-right: 20px solid transparent;
+      border-top: 20px solid #000;
+      margin: 10px auto 0 auto;
+    }
+    .spin-result {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 2rem;
+      font-weight: bold;
+      z-index: 2000;
+      pointer-events: none;
+      animation: drift 2s ease-out forwards;
+    }
+    @keyframes drift {
+      0% { opacity: 1; transform: translate(-50%, -50%); }
+      100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))); }
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      background: #fff;
+      color: #000;
+      border-radius: 1rem;
+      padding: 2rem 1rem;
+      max-width: 95vw;
+      width: 350px;
+      text-align: center;
+      box-sizing: border-box;
+    }
+    .modal-content button {
+      margin-top: 1.5rem;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      padding: 0.5rem 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .info-modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    .info-modal-content {
+      background: #fff;
+      color: #000;
+      border-radius: 1rem;
+      padding: 20px;
+      max-width: 90vw;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+      box-sizing: border-box;
+    }
+    .info-modal-content .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: #000;
+    }
+    .quote-bar {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      background: linear-gradient(to top, #f0f9ff, rgba(240, 249, 255, 0.7), transparent);
+      padding: 1.25rem 0.5rem 0.5rem 0.5rem;
+      text-align: center;
+      font-size: 1.05rem;
+      color: #374151;
+      font-style: italic;
+      z-index: 10;
+      word-break: break-word;
+    }
+    @media (max-width: 700px) {
+  .headline { font-size: 1.8rem; }
+  .sparkling-text { font-size: 1.5rem; }
+  .main { max-width: 98vw; }
+  .dream-btn { font-size: 1rem; padding: 1.2rem 1rem; margin: 0.5rem auto; width: 70vw; }
+  body { min-height: 100vh; height: 100vh; padding-top: 40px; }
+  .quote-bar { padding: 0.5rem 0.5rem 0.5rem 0.5rem; }
+  .modal-content { width: 95vw; padding: 1.2rem 0.5rem; }
+  .logo { height: 30px; }
+  .site-name { font-size: 30px; }
+  .wheel-container { height: 70vw; max-height: 400px; }
+  #plinkoContainer { width: 70vw; height: 70vw; max-height: 400px; }
+    }
+    @media (max-width: 400px) {
+  .headline { font-size: 1.5rem; }
+  .sparkling-text { font-size: 1.3rem; }
+  .dream-btn { font-size: 0.95rem; padding: 1rem 0.5rem; margin: 0.5rem auto; width: 70vw; }
+  body { min-height: 100vh; height: 100vh; padding-top: 35px; }
+  .quote-bar { padding: 0.5rem 0.5rem 0.5rem 0.5rem; }
+  .logo { height: 25px; }
+  .site-name { font-size: 25px; }
+  .wheel-container { height: 60vw; max-height: 350px; }
+  #plinkoContainer { width: 60vw; height: 60vw; max-height: 350px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="Peoples Lottery logo.png" alt="The People's Lottery Logo" class="logo">
+    <div class="logo-row">
+      <h1 class="site-name">The People's Lottery</h1>
+      <h2 class="sub-title">Free Bitcoin-Powered Lottery</h2>
+    </div>
+    <button id="infoBtn" class="info-btn">I</button>
+  </div>
+  <div class="main">
+    <div class="top-content">
+      <div class="headline" id="headline">Loading Bitcoin data...</div>
+      <div class="button-row">
+        <button class="dream-btn" id="mineBtn">DREAM BIG</button>
+        <button class="auto-btn" id="autoBtn">Auto</button>
+      </div>
+      <div class="win-triangle"></div>
+    </div>
+    <div class="wheel-container">
+      <div id="plinkoContainer"></div>
+    </div>
+  </div>
+  <div class="quote-bar" id="quoteBar"></div>
+  <div class="modal" id="winnerModal" style="display:none;">
+    <div class="modal-content">
+      <h2 style="color:#16a34a;font-size:1.5rem;font-weight:bold;">🎉 CONGRATULATIONS! 🎉</h2>
+      <p>You beat the impossible odds and won!</p>
+      <div style="background:#f3f4f6;padding:1rem;border-radius:0.5rem;margin:1rem 0;">
+        <div style="font-size:0.95rem;color:#374151;">Contact Brett Ackerman to redeem your prize:</div>
+        <div style="font-family:monospace;color:#2563eb;">📞 720-526-8359</div>
+        <div style="font-family:monospace;color:#2563eb;">✉️ brettcackerman@gmail.com</div>
+      </div>
+      <div style="font-size:0.8rem;color:#888;">But of course I'll have to prove it first</div>
+      <button onclick="document.getElementById('winnerModal').style.display='none'">Close</button>
+    </div>
+  </div>
+  <div class="info-modal" id="infoModal">
+    <div class="info-modal-content">
+      <button class="close-btn" onclick="document.getElementById('infoModal').style.display='none'">×</button>
+      <h2>Info</h2>
+      <p><strong>Welcome to The People’s Lottery!</strong></p>
+      <p>This is a completely free lottery website powered by bitcoin mining.</p>
+      <p>It works by mining bitcoin on your device. It’s free because the only cost is the use of processing power on your smartphone.</p>
+      <p>Yes, there is really a chance that you win. It's just super tiny.</p>
+      <p>What's in it for me? I cut a small fee for myself for every winner. Don’t worry, you’ll still get the full entire amount at the top of the main page transferred to you if you win.</p>
+      <p>By using The People’s Lottery, you agree that you are participating voluntarily and understand that this website performs computational hashing similar to Bitcoin mining. This site does not guarantee any earnings, payouts, or financial returns, and the odds of receiving a reward are extremely small.</p>
+      <p>No personal funds are ever requested or required to participate; however, participation may increase the use of your device’s processor, battery, and data connection. The site’s creator is not responsible for any hardware wear, energy costs, or data charges incurred through use of the website.</p>
+      <p>This project is for educational and entertainment purposes only and does not constitute financial advice, an investment, or an offer of securities. All rewards, if any, are provided at the operator’s discretion and only as described on this site.</p>
+    </div>
+  </div>
+  <script>
+    // Motivational quotes
+    const motivationalQuotes = [
+      "Life is either a daring adventure or nothing at all. — Helen Keller",
+      "The most difficult thing is the decision to act, the rest is merely tenacity. — Amelia Earhart",
+      "In the midst of chaos, there is also opportunity. — Sun Tzu",
+      "I have not failed. I've just found 10,000 ways that won't work. — Thomas Edison",
+      "It does not matter how slowly you go as long as you do not stop. — Confucius",
+      "In the middle of difficulty lies opportunity. — Albert Einstein",
+      "If something is important enough, even if the odds are against you, you should still do it. — Elon Musk",
+      "Life shrinks or expands in proportion to one's courage. — Anaïs Nin",
+      "If you're offered a seat on a rocket ship, don't ask what seat. Just get on. — Sheryl Sandberg",
+      "You can't outwit fate by standing on the sidelines… if you don't play you can't win. — Judith McNaught",
+      "Energy and persistence conquer all things. — Benjamin Franklin",
+      "It always seems impossible until it's done. — Nelson Mandela",
+      "If you opt for a safe life, you will never know what it's like to win. — Richard Branson",
+  "We will either find a way, or make one. — Hannibal",
+  "If you opt for a safe life, you will never know what it's like to win. — Richard Branson",
+      "Success is no accident. It is hard work, perseverance, learning, studying, sacrifice and most of all, love of what you are doing or learning to do. — Pelé",
+      "Many of life's failures are people who did not realize how close they were to success when they gave up. — Thomas Edison",
+      "A little more persistence, a little more effort, and what seemed hopeless failure may turn to glorious success. — Elbert Hubbard",
+      "With ordinary talent and extraordinary perseverance, all things are attainable. — Thomas Fowell Buxton",
+      "Victory is always possible for the person who refuses to stop fighting. — Napoleon Hill",
+      "It's hard to beat a person who never gives up. — Babe Ruth",
+      "It is not strength, but perseverance, that produces great works. — Samuel Johnson",
+      "A winner is just a loser who tried one more time. — George M. Moore Jr.",
+      "Success seems to be connected with action. Successful people keep moving. They make mistakes, but they don't quit. — Conrad Hilton",
+      "You miss 100 % of the shots you don't take. — Wayne Gretzky",
+      "Take risks: if you win, you will be happy; if you lose, you will be wise. — Anonymous",
+      "The biggest risk is not taking any risk. — Mark Zuckerberg",
+      "Only those who will risk going too far can possibly find out how far one can go. — T.S. Eliot",
+      "A ship in harbor is safe, but that is not what ships are built for. — John A. Shedd",
+      "He who is not courageous enough to take risks will accomplish nothing in life. — Muhammad Ali",
+      "Every strike brings me closer to the next home run. — Babe Ruth",
+      "The person who risks nothing, does nothing, has nothing, is nothing. — William Arthur Ward",
+      "Don't be afraid to give up the good to go for the great. — John D. Rockefeller",
+      "Opportunity dances with those already on the dance floor. — H. Jackson Brown Jr.",
+      "Fortune brings in some boats that are not steered. — William Shakespeare",
+      "You can't win if you don't play. — Anonymous",
+      "Luck is believing you're lucky. — Tennessee Williams",
+      "Never tell me the odds. — Han Solo",
+      "Go big or go home. — Eliza Dushku",
+      "If you never try, you'll never know what you're capable of. — Anonymous",
+      "Leap, and the net will appear. — John Burroughs",
+      "Everything you've ever wanted is on the other side of fear. — George Addair",
+      "You must play boldly to win. — Arnold Palmer",
+      "The dice of fate are always rolling; the question is whether you're in the game. — Anonymous"
+    ];
+    let minePressCount = 0;
+    let lastQuoteIdx = -1;
+    let currentRotation = 0;
+    let isAuto = false;
+    let autoInterval;
+    function generateTargetAngle() {
+      const lower_range = 30;
+      const bad_range = 10; // 10 degrees around triangle
+      const lower_weight = 0.1;
+      const normal_weight = 1;
+      const bad_deg = 2 * bad_range; // 20 degrees
+      const lower_deg = 2 * lower_range; // 60 degrees
+      const normal_deg = 360 - lower_deg - bad_deg; // 280 degrees
+      const total_weight = normal_deg * normal_weight + lower_deg * lower_weight; // 280 + 6 = 286
+      let rand = Math.random() * total_weight;
+      let angle;
+      if (rand < normal_deg * normal_weight) {
+        // normal zone: 30-260 and 280-330
+        const range1_length = 260 - 30; // 230
+        const range2_length = 330 - 280; // 50
+        const total_normal = range1_length + range2_length; // 280
+        const rand_normal = Math.random() * total_normal;
+        if (rand_normal < range1_length) {
+          angle = 30 + rand_normal;
+        } else {
+          angle = 280 + (rand_normal - range1_length);
+        }
+      } else {
+        // lower zone: 0-30 and 330-360
+        angle = Math.random() * 60;
+        if (angle > 30) angle += 300;
+      }
+      return angle;
+    }
+    function updateQuote() {
+      if (minePressCount % 7 === 1) { // every 7th click (on 1, 8, 15, ...)
+        let idx;
+        do {
+          idx = Math.floor(Math.random() * motivationalQuotes.length);
+        } while (motivationalQuotes.length > 1 && idx === lastQuoteIdx);
+        lastQuoteIdx = idx;
+        document.getElementById('quoteBar').textContent = motivationalQuotes[idx];
+      }
+    }
+    // Initialize with a random quote
+    (function() {
+      let idx = Math.floor(Math.random() * motivationalQuotes.length);
+      lastQuoteIdx = idx;
+      document.getElementById('quoteBar').textContent = motivationalQuotes[idx];
+    })();
+
+    // Bitcoin data
+    let networkDifficulty = null;
+    let blockRewardUSD = null;
+    const HASH_COUNT = 100000;
+    async function fetchBitcoinData() {
+      try {
+        const blocksResponse = await fetch('https://mempool.space/api/blocks');
+        const blocksData = await blocksResponse.json();
+        if (blocksData && blocksData.length > 0) {
+          const latestBlock = blocksData[0];
+          networkDifficulty = latestBlock.difficulty;
+          const currentHeight = latestBlock.height;
+          const halvings = Math.floor(currentHeight / 210000);
+          const rewardBTC = 50 / Math.pow(2, halvings);
+          const priceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
+          const priceData = await priceResponse.json();
+          const btcPrice = priceData.bitcoin.usd;
+          blockRewardUSD = (rewardBTC * btcPrice) * 0.25;
+          document.getElementById('headline').innerHTML = `1 in ${(networkDifficulty / HASH_COUNT / 1000000000).toFixed(1)} billion chance to win <span style='color:#16a34a;'>$${blockRewardUSD.toLocaleString()}</span>`;
+        }
+      } catch (e) {
+        networkDifficulty = 62463716667326;
+        blockRewardUSD = (50/8 * 111000) * 0.25;
+        document.getElementById('headline').innerHTML = `1 in ${(networkDifficulty / HASH_COUNT / 1000000000).toFixed(1)} billion chance to win <span style='color:#16a34a;'>$${blockRewardUSD.toLocaleString()}</span>`;
+      }
+    }
+    fetchBitcoinData();
+
+    // --- Mining Worker Setup ---
+    const miningWorker = new Worker('mining-worker.js');
+    function performRealHashes(count, difficulty) {
+      return new Promise((resolve) => {
+        const startTime = performance.now();
+        miningWorker.onmessage = function(e) {
+          const endTime = performance.now();
+          const totalTime = endTime - startTime;
+          console.log(`Performed ${count.toLocaleString()} REAL SHA-256 hashes in ${totalTime.toFixed(2)}ms`);
+          resolve(e.data.winnerFound);
+        };
+        miningWorker.postMessage({ count, difficulty });
+      });
+    }
+
+    document.getElementById('mineBtn').onclick = async function() {
+      const btn = this;
+      btn.disabled = true;
+      btn.classList.add('processing');
+      btn.textContent = 'MINING...';
+      
+      // Start Plinko ball drop (visual only)
+      if (window.plinkoGame) {
+        window.plinkoGame.play((slotIndex) => {
+          // Ball landed in slot - this is just visual feedback
+          console.log('Ball landed in slot:', slotIndex);
+        });
+      }
+      
+      // Update quote counter
+      minePressCount++;
+      updateQuote();
+      
+      // CRITICAL: Perform actual Bitcoin mining - THIS MUST ALWAYS RUN
+      const winner = await performRealHashes(HASH_COUNT, networkDifficulty || 62463716667326);
+      
+      // Re-enable button after mining completes
+      btn.disabled = false;
+      btn.classList.remove('processing');
+      btn.textContent = 'DREAM BIG';
+      
+      // Show winner modal if mining found a valid block
+      if (winner) {
+        document.getElementById('winnerModal').style.display = 'flex';
+      }
+    };
+
+    document.getElementById('autoBtn').onclick = function() {
+      const autoBtn = this;
+      isAuto = !isAuto;
+      if (isAuto) {
+        autoBtn.classList.add('active');
+        autoBtn.textContent = 'Stop Auto';
+        autoInterval = setInterval(() => {
+          const dreamBtn = document.getElementById('mineBtn');
+          if (!dreamBtn.disabled) {
+            dreamBtn.click();
+          }
+        }, 1000);
+      } else {
+        autoBtn.classList.remove('active');
+        autoBtn.textContent = 'Auto';
+        clearInterval(autoInterval);
+      }
+    };
+
+    document.getElementById('infoBtn').onclick = function() {
+      document.getElementById('infoModal').style.display = 'flex';
+    };
+  </script>
+  <!-- Plinko Game Script -->
+  <script src="plinko.js"></script>
+  <script>
+    // Initialize Plinko game when page loads
+    window.addEventListener('DOMContentLoaded', () => {
+      // Wait for Three.js and Cannon.js to load
+      if (typeof THREE !== 'undefined' && typeof CANNON !== 'undefined') {
+        window.plinkoGame = new PlinkoGame('plinkoContainer');
+      } else {
+        console.error('Three.js or Cannon.js failed to load');
+      }
+    });
+  </script>
+</body>
+</html>
