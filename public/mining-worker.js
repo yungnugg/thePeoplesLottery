@@ -4,8 +4,8 @@
 const HASHES_PER_BATCH = 100000;
 
 // Auto-detect WebSocket URL based on environment
-// Production: Use your deployed server URL (change this to your server's URL)
-// Development: Use localhost
+// Production: Railway server
+// Development: localhost
 const getWebSocketURL = () => {
   // Check if we're on localhost/development
   if (typeof location !== 'undefined') {
@@ -15,11 +15,8 @@ const getWebSocketURL = () => {
     }
   }
   
-  // For production, you need to deploy the server separately
-  // Option 1: Deploy to a cloud service (Heroku, Railway, etc.)
-  // Option 2: Keep running locally and use ngrok for tunnel
-  // For now, fall back to localhost (server must be running)
-  return 'ws://localhost:3001';
+  // Production: Railway WebSocket server (secure connection)
+  return 'wss://thepeopleslottery-production.up.railway.app';
 };
 
 const WS_URL = getWebSocketURL();
