@@ -19,8 +19,21 @@ export default function HomePage() {
   const [miningProgress, setMiningProgress] = useState(0);
   const workerRef = useRef<Worker | null>(null);
   const miningStartTimeRef = useRef<number>(0);
+  const [balls, setBalls] = useState<Array<{id: number, color: string, left: number, delay: number}>>([]);
 
   const HASH_COUNT = 100000; // 100K hashes per mining session
+  
+  // Ball colors for variety
+  const BALL_COLORS = [
+    '#ef4444', // red
+    '#f59e0b', // amber
+    '#10b981', // emerald
+    '#3b82f6', // blue
+    '#8b5cf6', // violet
+    '#ec4899', // pink
+    '#14b8a6', // teal
+    '#f97316', // orange
+  ];
 
   // Motivational quotes that change every 7 mine presses
   const motivationalQuotes = [
@@ -216,6 +229,18 @@ export default function HomePage() {
       return;
     }
 
+    // Drop 50 animated balls
+    const newBalls = Array.from({ length: 50 }, (_, i) => ({
+      id: Date.now() + i,
+      color: BALL_COLORS[Math.floor(Math.random() * BALL_COLORS.length)] || '#3b82f6',
+      left: Math.random() * 90, // 0-90% left position
+      delay: Math.random() * 2, // Stagger the drops (0-2s delay)
+    }));
+    setBalls(newBalls);
+
+    // Clear balls after animation completes (15 seconds)
+    setTimeout(() => setBalls([]), 15000);
+
     // Send mine command to worker
     // Worker will connect to Stratum pool, receive job, and start hashing
     console.log('🚀 Starting mining session...');
@@ -224,6 +249,19 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-black flex items-start justify-center pt-16">
+      {/* Falling Balls Animation */}
+      {balls.map((ball) => (
+        <div
+          key={ball.id}
+          className="falling-ball"
+          style={{
+            left: `${ball.left}%`,
+            backgroundColor: ball.color,
+            animationDelay: `${ball.delay}s`,
+          }}
+        />
+      ))}
+      
       <div className="text-center">
         <div className="text-4xl md:text-6xl font-bold text-white mb-4">
           {networkDifficulty && blockRewardUSD ? (
